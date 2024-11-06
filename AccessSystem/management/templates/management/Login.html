@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'management/css/Login.css' %}">
+</head>
+<body>
+    <h1 class="title">출입관리시스템</h1>
+    <!-- 로그인 컨테이너 -->
+    <div class="login-container">
+        <form id="loginForm" method="post" action="{% url 'management:login' %}">
+            {% csrf_token %}
+            <div class="input-field"> <!-- ID -->
+                <label for="loginId">ID:</label>
+                <input type="text" id="loginId" name="loginId" required>
+            </div>
+            <div class="input-field"> <!-- PW -->
+                <label for="loginPw">PW:</label>
+                <input type="password" id="loginPw" name="loginPw" required>
+            </div>
+            <!-- 로그인 버튼 -->
+            <button type="submit">로그인</button>
+            {% if error_message %}
+                <p class="error">{{ error_message }}</p>
+            {% endif %}
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>출입자등록</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'management/css/createvisitor.css' %}">
+    <link rel="stylesheet" href="{% static 'management/css/style.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> 
+    <script>
+        $(document).ready(function() {
+            $('.btn.fingerprint-btn').click(function() {
+                const emp_no = $('#emp_no').val(); 
+
+                if (!emp_no) {
+                    alert('사번을 입력해주세요.');
+                    return;
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "management:enroll_fingerprint" %}',
+                    data: {
+                        emp_no: emp_no,
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        alert(response.message);
+                    },
+                    error: function(xhr, status, error) {
+                        alert('지문 등록 중 오류가 발생하였습니다.');
+                    }
+                });
+            });
+        });
+
+        $(document).ready(function() {
+            $('.approval-btn').click(function() {
+                $.ajax({
+                    type: 'GET',
+                    url: '{% url "management:approve_entry" %}', 
+                    success: function(response) {
+                        alert(response.message); 
+                    },
+                    error: function(xhr, status, error) {
+                        alert('출입 승인 중 오류가 발생하였습니다.'); 
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <!-- 메뉴바 -->
+    <div class="header-container">
+        <div class="header">
+            <div class="tab-btn">출입자관리
+                <div class="dropdown">
+                    <div class="dropdown-item">
+                        <a href="{% url 'management:search_visitor' %}">출입자 조회</a>
+                    </div>
+                    <div class="dropdown-item">
+                        <a href="{% url 'management:create_visitor' %}">출입자 등록</a>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-btn">사용자관리
+                <div class="dropdown">
+                    <div class="dropdown-item">
+                        <a href="{% url 'management:search_user' %}">사용자 조회</a>
+                    </div>
+                    <div class="dropdown-item">
+                        <a href="{% url 'management:create_user' %}">사용자 등록</a>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-btn">출입조회
+                <div class="dropdown">
+                    <div class="dropdown-item">
+                        <a href="{% url 'management:entrance_log' %}">출입조회</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="header2">
+            <a class="tab-btn3 logout-btn" href="{% url 'management:login' %}">로그아웃</a>
+            <a class="tab-btn3 approval-btn">승인</a>
+        </div>
+    </div>
+
+    <!-- 오른쪽 패널 -->
+    <h1>  </h1>
+    <h1>출입자 등록</h1>
+    <form action="{% url 'management:insert_visitor' %}" method="POST" enctype="multipart/form-data" onsubmit="return confirm('정말로 저장하시겠습니까?');">
+        {% csrf_token %}
+        <div class="input-group-container">
+            <!-- 정보 입력칸 -->
+            <div class="input-group">
+                <label for="name">이름</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="input-group">
+                <label for="department">소속</label>
+                <input type="text" id="department" name="department" required>
+            </div>
+            <div class="input-group">
+                <label for="position">직급</label>
+                <input type="text" id="position" name="position" required>
+            </div>
+            <div class="input-group">
+                <label for="dob">생년월일</label>
+                <input type="date" id="dob" name="dob" required>
+            </div>
+            <div class="input-group">
+                <label for="phone">휴대전화</label>
+                <input type="text" id="phone" name="phone" required>
+            </div>
+            <div class="input-group">
+                <label for="email">이메일</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="input-group">
+                <label for="emp_no">사번</label>
+                <input type="text" id="emp_no" name="emp_no" required>
+            </div>
+            <div class="input-group">
+                <label for="photo">사진</label>
+                <input type="file" id="photo" name="photo" accept="image/*">
+            </div>
+        </div>
+
+        <div class="button-container">
+            <button type="button" class="btn blue-btn fingerprint-btn">지문 등록</button>
+            <button type="submit" class="btn blue-btn">저장</button>
+        </div>
+    </form>
+</body>
+</html>

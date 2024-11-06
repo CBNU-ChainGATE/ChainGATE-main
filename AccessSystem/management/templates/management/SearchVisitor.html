@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>출입자조회</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'management/css/searChvisitor.css' %}">
+    <link rel="stylesheet" href="{% static 'management/css/style.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.approval-btn').click(function() {
+                $.ajax({
+                    type: 'GET',
+                    url: '{% url "management:approve_entry" %}',
+                    success: function(response) {
+                        alert(response.message); 
+                    },
+                    error: function(xhr, status, error) {
+                        alert('출입 승인 중 오류가 발생하였습니다.'); 
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <!-- 메뉴바 -->
+    <div class="header-container">
+        <div class="header">
+            <div class="tab-btn">출입자관리
+                <div class="dropdown">
+                    <div class="dropdown-item">
+                        <a href="{% url 'management:search_visitor' %}">출입자 조회</a>
+                    </div>
+                    <div class="dropdown-item">
+                        <a href="{% url 'management:create_visitor' %}">출입자 등록</a>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-btn">사용자관리
+                <div class="dropdown">
+                    <div class="dropdown-item">
+                        <a href="{% url 'management:search_user' %}">사용자 조회</a>
+                    </div>
+                    <div class="dropdown-item">
+                        <a href="{% url 'management:create_user' %}">사용자 등록</a>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-btn">출입조회
+                <div class="dropdown">
+                    <div class="dropdown-item">
+                        <a href="{% url 'management:entrance_log' %}">출입조회</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="header2">
+            <a class="tab-btn3 logout-btn" href="{% url 'management:login' %}">로그아웃</a>
+            <a class="tab-btn3 approval-btn">승인</a>
+        </div>
+    </div>
+    <div class="content">
+        <!-- 왼쪽 패널 -->
+        <div class="left-panel">
+            <!-- 사진 -->
+            <div class="image-placeholder">
+                {% if details.8 %}
+                    <img src="/media/{{ details.8 }}" alt="출입자 사진" style="max-width: 100%; height: auto;">
+                {% else %}
+                    (사진 없음)
+                {% endif %}
+            </div>
+            <!-- 정보표 -->
+            <div class="detail-info">
+                <table class="info-table">
+                    <thead>
+                        <tr>
+                            <th colspan="2" class="info-title">정보</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="label">이름</td>
+                            <td class="value">{{ details.1|default:"" }}</td>
+                        </tr>
+                        <tr>
+                            <td class="label">소속</td>
+                            <td class="value">{{ details.2|default:"" }}</td>
+                        </tr>
+                        <tr>
+                            <td class="label">직급</td>
+                            <td class="value">{{ details.3|default:"" }}</td>
+                        </tr>
+                        <tr>
+                            <td class="label">생년월일</td>
+                            <td class="value">{{ details.4|default:"" }}</td>
+                        </tr>
+                        <tr>
+                            <td class="label">휴대전화</td>
+                            <td class="value">{{ details.5|default:"" }}</td>
+                        </tr>
+                        <tr>
+                            <td class="label">이메일</td>
+                            <td class="value">{{ details.6|default:"" }}</td>
+                        </tr>
+                        <tr>
+                            <td class="label">사번</td>
+                            <td class="value">{{ details.7|default:"" }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            {% if details %}
+            <div class="update-btn-container" style="display: block;">
+                <form method="get" action="{% url 'management:update_visitor' %}">
+                    <input type="hidden" name="visitor_id" value="{{ details.0 }}">
+                    <button type="submit" class="btn blue-btn">변경</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- 오른쪽 패널 -->
+        <div class="right-panel">
+            <div class="controls">
+                <!-- 검색 칸 -->
+                <form method="get" aria-label="사용자 검색">
+                    <div class="input-group">
+                        <label for="name">이름</label>
+                        <input type="text" id="name" name="name" value="{{ request.GET.name }}" aria-label="이름 입력">
+                    </div>
+                    <div class="input-group">
+                        <label for="department">소속</label>
+                        <input type="text" id="department" name="department" value="{{ request.GET.department }}" aria-label="소속 입력">
+                    </div>
+                    <button type="submit" class="btn green-btn" aria-label="조회 버튼">조회</button>
+                </form>
+            </div>
+
+            <div class="employee-list">
+                <table class="employee-table">
+                    <thead>
+                        <tr>
+                            <th>이름</th>
+                            <th>소속</th>
+                            <th>직급</th>
+                            <th>사번</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if visitors %}
+                            {% for visitor in visitors %}
+                            <tr class="employee-item">
+                                <td><a href="?visitor_id={{ visitor.0 }}">{{ visitor.1 }}</a></td> <!-- 이름 -->
+                                <td><a href="?visitor_id={{ visitor.0 }}">{{ visitor.2 }}</a></td> <!-- 소속 -->
+                                <td><a href="?visitor_id={{ visitor.0 }}">{{ visitor.3 }}</a></td> <!-- 직급 -->
+                                <td><a href="?visitor_id={{ visitor.0 }}">{{ visitor.4 }}</a></td> <!-- 사번 -->
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="4">조회된 출입자가 없습니다.</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const employeeItems = document.querySelectorAll('.employee-item a');
+            const detailPanel = document.querySelector('.left-panel');
+            
+            employeeItems.forEach(item => {
+                item.addEventListener('click', function(event) {
+                    detailPanel.classList.add('show-update-btn');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
